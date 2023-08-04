@@ -6,7 +6,7 @@ from AnalysisBases import select_topN_genes,TopN_genes_age_tissue_correlation_an
 
 parser = argparse.ArgumentParser(formatter_class=RawTextHelpFormatter)
 parser.add_argument("-sf", "--SSB_file", help = "SSB expression file(csv) ", required=False,default='./data/New_SSB_data_sorted_tpm.csv')
-parser.add_argument("-pr", "--AP_file", help = "AP expression file(csv) ", required=False,default='./data/New_AP_data_sorted_tpm.csv')
+parser.add_argument("-pf", "--AP_file", help = "AP expression file(csv) ", required=False,default='./data/New_AP_data_sorted_tpm.csv')
 parser.add_argument("-rf", "--RNA_file", help = "RNA expression file(csv)", required=False,default='./data/RNA_data_sorted_tpm.csv')
 parser.add_argument("-o", "--output_file", help = "output_file_path", required=False,default='./DataTopnGenesFeatures')
 parser.add_argument("-caa", "--caa_flag", help = "correlation_analysis_with_age", required=False,default=1)
