@@ -163,13 +163,13 @@ def select_topN_genes(svc,SSB_data, AP_data,RNA_seq_data, y_label,output_file,sa
 def read_topN_genes(dataPath,ageFlag):
 
     if ageFlag:
-        AP_data = pd.read_csv(dataPath+"/selected_AP_data_filter_all.csv",header=0,index_col=0)
-        SSB_data = pd.read_csv(dataPath+"/selected_SSB_data_filter_all.csv",header=0,index_col=0)
-        RNA_seq_data = pd.read_csv(dataPath+"/selected_RNA_seq_data_filter_all.csv",header=0,index_col=0)
+        AP_data = pd.read_csv(dataPath+"selected_AP_data_filter_all.csv",header=0,index_col=0)
+        SSB_data = pd.read_csv(dataPath+"selected_SSB_data_filter_all.csv",header=0,index_col=0)
+        RNA_seq_data = pd.read_csv(dataPath+"selected_RNA_seq_data_filter_all.csv",header=0,index_col=0)
     else:
-        AP_data = pd.read_csv(dataPath+"/selected_AP_data_tissue_filter_all.csv",header=0,index_col=0)
-        SSB_data = pd.read_csv(dataPath+"/selected_SSB_data_tissue_filter_all.csv",header=0,index_col=0)
-        RNA_seq_data = pd.read_csv(dataPath+"/selected_RNA_seq_data_tissue_filter_all.csv",header=0,index_col=0)
+        AP_data = pd.read_csv(dataPath+"selected_AP_data_tissue_filter_all.csv",header=0,index_col=0)
+        SSB_data = pd.read_csv(dataPath+"selected_SSB_data_tissue_filter_all.csv",header=0,index_col=0)
+        RNA_seq_data = pd.read_csv(dataPath+"selected_RNA_seq_data_tissue_filter_all.csv",header=0,index_col=0)
  
     return AP_data,SSB_data,RNA_seq_data
 
