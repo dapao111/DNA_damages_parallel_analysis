@@ -982,7 +982,7 @@ def parallel_analysis_result(svc,selected_SSB_data,selected_AP_data,selected_RNA
     return to_plot_multi_SSB_auc,to_plot_multi_AP_auc,to_plot_multi_RNA_seq_auc,to_plot_multi_SSB_f1_score,to_plot_multi_AP_f1_score,to_plot_multi_RNA_seq_f1_score
 
 
-def parallel_100_iters_results(y_age,y_tissue,output_file):
+def parallel_N_iters_results(y_age,y_tissue,output_file,iter_n,TopN):
 
     colors = ['#f89588','#f74d4d','#B883D4','#76da91','#7898e1','#BEB8DC','#A1A9D0','#eddd86','#8ECFC9','#63b2ee','#943c39']
     linestyles = ['1','2','3','4','h','x','D']    
@@ -1004,7 +1004,7 @@ def parallel_100_iters_results(y_age,y_tissue,output_file):
                 ageFlag = 1
             else:
                 ageFlag = 0
-            selected_AP_datas,selected_SSB_datas,selected_RNA_seq_datas = read_topN_genes(dataPath,ageFlag)
+            selected_AP_datas,selected_SSB_datas,selected_RNA_seq_datas = read_topN_genes(dataPath,ageFlag,TopN)
             to_plot_multi_mean_SSB_aucs = []
             to_plot_multi_mean_AP_aucs = []
             to_plot_multi_mean_RNA_seq_aucs = [] 
@@ -1020,7 +1020,7 @@ def parallel_100_iters_results(y_age,y_tissue,output_file):
                 to_plot_multi_SSB_f1_scores = []
                 to_plot_multi_AP_f1_scores = []
                 to_plot_multi_RNA_seq_f1_scores = []    
-                for iter_i in range(100):
+                for iter_i in range(iter_n):
                     import time 
                     seed = int(time.time())+100*iter_i+(3*iter_i)**2
                     seeds.append(seed)
@@ -1139,28 +1139,25 @@ def boxplot_roc_results(output_file):
             plt.savefig(output_result_roc_boxplot_file_path+str(svc)+"rocs_box_plot.svg",dpi = 1080)  
             # plt.show()
 
-
+#===============calculate confidencial interval=====================================
 def calculate_confidencial_interval(output_file):
     svcs = ['ElasticNet','RandomForestClassifier','DecisionTreeRegressor','DecisionTreeClassifier','AdaBoostClassifier','LogisticRegression','GaussianNB','LGBMClassifier','XGBClassifier','Lasso']
     select_topN_gene_nums = [15,25,50,75,100,150,200,250,300,400,500,'all']
     # select_topN_gene_nums = [15,25]
 
     lower_percentile, upper_percentile = [(100-95)/2, 100-(100-95)/2]
-    with pd.ExcelWriter('exon_83_'+'age_tissue'+'confidentcial_results.xlsx') as writer:
+    output_result_confidencial_file_path = output_file+"/result_metrics_100_83/age&tissue_confidencial_interval_results/"
+    if not os.path.exists(output_result_confidencial_file_path):
+        os.makedirs(output_result_confidencial_file_path)
+    with pd.ExcelWriter(output_result_confidencial_file_path+'exon_83_'+'age_tissue'+'confidentcial_results.xlsx') as writer:
         multi_index = pd.MultiIndex.from_product([["tissue",'age'],svcs,select_topN_gene_nums, ['SSB', 'AP', 'RNA_seq']])
         confidencial_interval_result = pd.DataFrame(columns=['CI lowwer','CI upper'], index=multi_index)
         for svc in svcs:
             for y_label in ["tissue",'age']:
                 if y_label == "age":
-                    output_result_confidencial_file_path = output_file+"/result_metrics_100_83/age_confidencial_interval_results/"
-                else:
-                    output_result_confidencial_file_path = "./result_metrics_100_83/tissue_confidencial_interval_results/"
-                if not os.path.exists(output_result_confidencial_file_path):
-                    os.makedirs(output_result_confidencial_file_path)
-                if y_label == "age":
-                    output_models_results_path = './result_metrics_100_83/'+'age_model_results/'+str(svc)+'/'
+                    output_models_results_path = output_file+'/result_metrics_100_83/'+'age_model_results/'+str(svc)+'/'
                 else :
-                    output_models_results_path = './result_metrics_100_83/'+'tissue_model_results/'+str(svc)+'/'
+                    output_models_results_path = output_file+'/result_metrics_100_83/'+'tissue_model_results/'+str(svc)+'/'
                 for selected_gene in select_topN_gene_nums:
                     data_rocs_path = output_models_results_path+"selectedTop_"+str(selected_gene)+"_100_model_results.csv"
                     data_rocs = pd.read_csv(data_rocs_path,header=0,index_col=0)
@@ -1192,13 +1189,12 @@ def calculate_confidencial_interval(output_file):
                     confidencial_interval_result.loc[(y_label,str(svc),selected_gene,'RNA_seq'), 'mean auc'] = rna_rocs.mean()
             confidencial_interval_result.to_excel(writer)
 
-
 #=====print methods ROC ==============================================
-def  print_ROC_result(y_age,y_tissue,output_file):
+def  print_ROC_result(y_age,y_tissue,TopN,output_file):
 
     #ROC
     n_classes = ['0', '1', '2', '3', '4']
-    if y_label.shape[0] == 83:
+    if y_age.shape[0] == 83:
         age_info = ['3','12','19','22','24']
     else:
         age_info = ['3','12','19','22']
@@ -1206,6 +1202,7 @@ def  print_ROC_result(y_age,y_tissue,output_file):
 
     svcs = ['ElasticNet','RandomForestClassifier','DecisionTreeRegressor','DecisionTreeClassifier','AdaBoostClassifier','LogisticRegression','GaussianNB','LGBMClassifier','XGBClassifier','Lasso']
     selected_gene_nums = [100,150,200,250,300,400,500]
+    selected_gene_nums = [500]
 
     tissue_info = ['B-','H-','L-','M-','P-','S-']
     for y_label in [y_age,y_tissue]:
@@ -1232,7 +1229,7 @@ def  print_ROC_result(y_age,y_tissue,output_file):
         plt.title('Ten algorithms of ROC about different Top genes ')
         dataPath = output_file+'/genes_TopN_data/'
 
-        selected_AP_datas,selected_SSB_datas,selected_RNA_seq_datas = read_topN_genes(dataPath,is_age_label)
+        selected_AP_datas,selected_SSB_datas,selected_RNA_seq_datas = read_topN_genes(dataPath,is_age_label,TopN)
         idx_select_gene_num = 0
         for svc in svcs:
             for selected_gene_num in selected_gene_nums:
@@ -1286,6 +1283,7 @@ def  print_ROC_result(y_age,y_tissue,output_file):
                         pred_label = (pred_label - np.min(pred_label))/(np.max(pred_label) - np.min(pred_label)) *5
                     pred_label = np.array(pred_label,dtype=np.int64)
                     pred = to_categorical(pred_label)
+                    linear_auc = roc_auc_score(y_test, pred, multi_class='ovo')
                     to_save_result = 'SSB :\n'+classification_report(y_true=y_test,y_pred=pred_label,target_names=label_info)+'multi_AUC_result:'+str(linear_auc)+'\n'
                     to_save_metric = svc + '\t' + str(selected_gene_num) + '\t' + 'SSB' + '\t' + str(accuracy_score(y_test, pred_label)) + '\t' + str(precision_score(y_test, pred_label, average='weighted')) + '\t' + str(recall_score(y_test, pred_label, average='weighted')) + '\t' + str(f1_score(y_test, pred_label, average='weighted')) + '\t' + str(linear_auc) + '\n'
                     to_save_metrics.append(to_save_metric)
@@ -1294,6 +1292,7 @@ def  print_ROC_result(y_age,y_tissue,output_file):
                     pred_label = model.predict(x_test)
                     pred_roc_label = to_categorical(pred_label)
                     y_roc_test = to_categorical(y_test)
+                    multi_auc = roc_auc_score(y_roc_test, pred_roc_label, multi_class='ovo')
                     to_save_result = 'SSB :\n'+classification_report(y_true=y_test,y_pred=pred_label,target_names=label_info)+'multi_AUC_result:'+str(multi_auc)+'\n'
                     pred = softmax(pred)
                     to_save_metric = svc + '\t' + str(selected_gene_num) + '\t' + 'SSB' + '\t' + str(accuracy_score(y_test, pred_label)) + '\t' + str(precision_score(y_test, pred_label, average='weighted')) + '\t' + str(recall_score(y_test, pred_label, average='weighted')) + '\t' + str(f1_score(y_test, pred_label, average='weighted')) + '\t' + str(multi_auc) + '\n'
@@ -1380,6 +1379,7 @@ def  print_ROC_result(y_age,y_tissue,output_file):
                         pred_label = (pred_label - np.min(pred_label))/(np.max(pred_label) - np.min(pred_label)) *5
                     pred_label = np.array(pred_label,dtype=np.int64)
                     pred = to_categorical(pred_label)
+                    linear_auc = roc_auc_score(y_test, pred, multi_class='ovo')
                     to_save_result = 'AP :\n'+classification_report(y_true=y_test,y_pred=pred_label,target_names=label_info)+'multi_AUC_result:'+str(linear_auc)+'\n'
                     to_save_metric = svc + '\t' + str(selected_gene_num) + '\t' + 'AP' + '\t' + str(accuracy_score(y_test, pred_label)) + '\t' + str(precision_score(y_test, pred_label, average='weighted')) + '\t' + str(recall_score(y_test, pred_label, average='weighted')) + '\t' + str(f1_score(y_test, pred_label, average='weighted')) + '\t' + str(linear_auc) + '\n'
                     to_save_metrics.append(to_save_metric)
@@ -1389,6 +1389,7 @@ def  print_ROC_result(y_age,y_tissue,output_file):
                     pred = softmax(pred)
                     pred_roc_label = to_categorical(pred_label)
                     y_roc_test = to_categorical(y_test)
+                    multi_auc = roc_auc_score(y_roc_test, pred_roc_label, multi_class='ovo')
                     to_save_metric = svc + '\t' + str(selected_gene_num) + '\t' + 'AP' + '\t' + str(accuracy_score(y_test, pred_label)) + '\t' + str(precision_score(y_test, pred_label, average='weighted')) + '\t' + str(recall_score(y_test, pred_label, average='weighted')) + '\t' + str(f1_score(y_test, pred_label, average='weighted')) + '\t' + str(multi_auc) + '\n'
                     to_save_metrics.append(to_save_metric)
                     to_save_result = 'AP :\n'+classification_report(y_true=y_test,y_pred=pred_label,target_names=label_info)+'multi_AUC_result:'+str(multi_auc)+'\n'
@@ -1474,6 +1475,7 @@ def  print_ROC_result(y_age,y_tissue,output_file):
                         pred_label = (pred_label - np.min(pred_label))/(np.max(pred_label) - np.min(pred_label)) *5
                     pred_label = np.array(pred_label,dtype=np.int64)
                     pred = to_categorical(pred_label)
+                    linear_auc = roc_auc_score(y_test, pred, multi_class='ovo')
 
                     to_save_result = 'RNA-seq :\n'+classification_report(y_true=y_test,y_pred=pred_label,target_names=label_info) +'multi_AUC_result:'+str(linear_auc)+'\n'
                     to_save_metric = svc + '\t' + str(selected_gene_num) + '\t' + 'RNA-seq' + '\t' + str(accuracy_score(y_test, pred_label)) + '\t' + str(precision_score(y_test, pred_label, average='weighted')) + '\t' + str(recall_score(y_test, pred_label, average='weighted')) + '\t' + str(f1_score(y_test, pred_label, average='weighted')) + '\t' + str(linear_auc) + '\n'
@@ -1484,6 +1486,7 @@ def  print_ROC_result(y_age,y_tissue,output_file):
                     pred = softmax(pred)
                     pred_roc_label = to_categorical(pred_label)
                     y_roc_test = to_categorical(y_test)
+                    multi_auc = roc_auc_score(y_roc_test, pred_roc_label, multi_class='ovo')
                     to_save_metric = svc + '\t' + str(selected_gene_num) + '\t' + 'RNA-seq' + '\t' + str(accuracy_score(y_test, pred_label)) + '\t' + str(precision_score(y_test, pred_label, average='weighted')) + '\t' + str(recall_score(y_test, pred_label, average='weighted')) + '\t' + str(f1_score(y_test, pred_label, average='weighted')) + '\t' + str(multi_auc) + '\n'
                     to_save_metrics.append(to_save_metric)
                     to_save_result = 'RNA-seq :\n'+classification_report(y_true=y_test,y_pred=pred_label,target_names=label_info) +'multi_AUC_result:'+str(multi_auc)+'\n'
