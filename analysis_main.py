@@ -40,23 +40,23 @@ def ana_pipeline():
             features_num = int(features_num)
         else:
             print("please check your -n feature_num parameter,make sure it is integer or \"all\"")
-    # for y_label in [y_age,y_tissue]:
-    #     save_selected_data_metrics_flag = 1
-    #     selected_SSB_datas,selected_AP_datas,selected_RNA_seq_datas = select_topN_genes('svc',SSB_data,AP_data,RNA_seq_data,y_label,out_file,save_selected_data_metrics_flag,features_num)
-    #     print(selected_SSB_datas.shape,selected_RNA_seq_datas.shape)
+    for y_label in [y_age,y_tissue]:
+        save_selected_data_metrics_flag = 1
+        selected_SSB_datas,selected_AP_datas,selected_RNA_seq_datas = select_topN_genes('svc',SSB_data,AP_data,RNA_seq_data,y_label,out_file,save_selected_data_metrics_flag,features_num)
+        print(selected_SSB_datas.shape,selected_RNA_seq_datas.shape)
 
-    #     if args.cat_flag:
-    #         TopN_genes_age_tissue_correlation_analysis(y_label,selected_AP_datas,selected_SSB_datas,selected_RNA_seq_datas,out_file)
-    #     if args.caa_flag:
-    #         TopN_genes_correlation_analysis(y_label,selected_AP_datas,selected_SSB_datas,selected_RNA_seq_datas,out_file)
+        if args.cat_flag:
+            TopN_genes_age_tissue_correlation_analysis(y_label,selected_AP_datas,selected_SSB_datas,selected_RNA_seq_datas,out_file)
+        if args.caa_flag:
+            TopN_genes_correlation_analysis(y_label,selected_AP_datas,selected_SSB_datas,selected_RNA_seq_datas,out_file)
 
     parallel_N_iters_results(y_age,y_tissue,out_file,iters_number,features_num)
 
-    # if args.rocplot_flag:
-    #     print_ROC_result(y_age,y_tissue,features_num,out_file)
+    if args.rocplot_flag:
+        print_ROC_result(y_age,y_tissue,features_num,out_file)
 
-    # if args.confidencial_cal_flag:
-    #     calculate_confidencial_interval(out_file)
+    if args.confidencial_cal_flag:
+        calculate_confidencial_interval(out_file)
 
 if __name__ == "__main__":
     ana_pipeline()

@@ -12,6 +12,7 @@ pip install -r requirements.txt
 ```
 
 Input:
+
     -sf : SSB expression file(csv) PATH
     -pf : AP expression file(csv) PATH
     -rf : RNA expression file(csv) PATH
@@ -20,7 +21,7 @@ Input:
     -in : selected the numbers of iteration to test the dataset, 100 default.
     -caa : correlation_analysis_with_age or_not 
     -cat : correlation_analysis_with_age or_not 
-    -rp : roc_results_plot or_not 
+    -rpf : roc_results_plot or_not 
     -ccf : calculate_confidencial_interval or_not
 
     Note: Please make sure your AP,SSB Matrix expression data are normalized with the formula we gave in Paper as well as the mm gtf data is Compatible
@@ -37,5 +38,5 @@ Run experiments with the default parameters.
 
 If you want to run your data:
 
-    python analysis_main.py -sf (your ssb expression file ) -pf (your ap expression file ) -rf (your rna expression file ) -o (output_file path) -caa 1 or 0 -cat 1 or 0 -rp 1 or 0 -ccf 1 or 0
+    python analysis_main.py -sf (your ssb expression file ) -pf (your ap expression file ) -rf (your rna expression file ) -o (output_file path) -fn TopN genes num -in iterations -caa 1 or 0 -cat 1 or 0 -rpf 1 or 0 -ccf 1 or 0
     
