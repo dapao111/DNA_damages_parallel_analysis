@@ -6,7 +6,9 @@ Parallel Analysis for AP,SSB,RNA-seq expressions in aging biomarker
 ```
 git clone https://github.com/dapao111/DNA_damages_parallel_analysis.git
 ```
-2. Install the requirments.
+2. environment
+   python 3.9.x is recommended, and linuxs or windows system are supported. 
+3. Install the requirments.
 ```
 pip install -r requirements.txt
 ```
